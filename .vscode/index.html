@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ITENARY</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital@0;1&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Cormorant Garamond',sans-serif;
+}
+
+body{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    background:
+        linear-gradient(
+            135deg,
+            #081020,
+            #0d1b3a 55%,
+            #1a365d
+        );
+
+    overflow:hidden;
+    position:relative;
+}
+
+/* Timetable Grid Pattern - Much brighter (0.08 instead of 0.025) */
+
+body::before{
+    content:"";
+    position:absolute;
+    inset:0;
+
+    background:
+        linear-gradient(
+            rgba(255,255,255,.08) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(255,255,255,.08) 1px,
+            transparent 1px
+        );
+
+    background-size:70px 70px;
+
+    pointer-events:none;
+}
+
+/* Glowing Schedule Nodes */
+
+body::after{
+    content:"";
+    position:absolute;
+    inset:0;
+
+    background:
+        radial-gradient(circle at 15% 25%, rgba(0,255,255,.10) 0 4px, transparent 6px),
+        radial-gradient(circle at 35% 70%, rgba(0,255,255,.08) 0 4px, transparent 6px),
+        radial-gradient(circle at 65% 20%, rgba(0,255,255,.08) 0 4px, transparent 6px),
+        radial-gradient(circle at 82% 65%, rgba(0,255,255,.10) 0 4px, transparent 6px),
+        radial-gradient(circle at 50% 45%, rgba(255,255,255,.06) 0 4px, transparent 6px);
+
+    pointer-events:none;
+}
+
+.container{
+    width:min(1200px,95vw);
+    position:relative;
+    z-index:5;
+}
+
+.title{
+    text-align:center;
+    color:white;
+    font-size:2.8rem;
+    font-weight:700;
+    margin-bottom:60px;
+    letter-spacing:2px;
+    text-shadow:0 0 20px rgba(255,255,255,.15);
+}
+
+.cards{
+    display:flex;
+    justify-content:center;
+    gap:40px;
+    flex-wrap:wrap;
+}
+
+.card{
+    position:relative;
+    width:340px;
+    height:520px;
+
+    border-radius:28px;
+    overflow:hidden;
+
+    background:rgba(255,255,255,.05);
+
+    border:1px solid rgba(255,255,255,.12);
+
+    backdrop-filter:blur(20px);
+    -webkit-backdrop-filter:blur(20px);
+
+    box-shadow:
+        15px 15px 35px rgba(0,0,0,.25),
+        inset 1px 1px 0 rgba(255,255,255,.12);
+
+    transition:.35s ease;
+}
+
+.card:hover{
+    transform:translateY(-10px);
+}
+
+.card-front{
+    position:absolute;
+    inset:0;
+
+    padding:35px;
+
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+
+    transition:.4s ease;
+}
+
+.card.show-form .card-front{
+    opacity:0;
+    transform:scale(.92);
+    pointer-events:none;
+}
+
+.badge{
+    align-self:flex-start;
+
+    padding:10px 16px;
+
+    border-radius:999px;
+
+    background:rgba(255,255,255,.08);
+
+    border:1px solid rgba(255,255,255,.12);
+
+    color:white;
+
+    font-size:.72rem;
+    letter-spacing:2px;
+    text-transform:uppercase;
+}
+
+.role{
+    margin-top:35px;
+
+    color:white;
+
+    font-size:2.7rem;
+    font-weight:700;
+}
+
+.desc{
+    margin-top:20px;
+
+    color:rgba(255,255,255,.82);
+
+    line-height:1.85;
+    font-size:1rem;
+}
+
+.login-btn{
+    margin-top:40px;
+
+    text-decoration:none;
+    text-align:center;
+
+    color:white;
+    font-weight:600;
+
+    padding:16px;
+
+    border-radius:16px;
+
+    background:rgba(255,255,255,.08);
+
+    border:1px solid rgba(255,255,255,.12);
+
+    transition:.3s;
+}
+
+.login-btn:hover{
+    background:rgba(255,255,255,.12);
+}
+
+/* Login Panel - Fully transparent with no blur */
+
+.login-panel{
+    position:absolute;
+    inset:0;
+
+    padding:40px;
+
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+
+    background:transparent;
+
+    backdrop-filter:blur(0px);
+
+    opacity:0;
+    visibility:hidden;
+
+    transform:scale(.95);
+
+    transition:.4s ease;
+}
+
+.card.show-form .login-panel{
+    opacity:1;
+    visibility:visible;
+    transform:scale(1);
+}
+
+.login-panel h3{
+    color:white;
+    text-align:center;
+    margin-bottom:25px;
+    font-size:2rem;
+}
+
+label{
+    color:white;
+    margin-top:14px;
+    margin-bottom:8px;
+}
+
+input{
+    width:100%;
+
+    padding:14px;
+
+    border-radius:14px;
+
+    border:1px solid rgba(255,255,255,.12);
+
+    background:rgba(255,255,255,.08);
+
+    color:white;
+
+    outline:none;
+}
+
+input::placeholder{
+    color:rgba(255,255,255,.45);
+}
+
+.actions{
+    display:flex;
+    gap:12px;
+    margin-top:25px;
+}
+
+button{
+    flex:1;
+
+    padding:14px;
+
+    border:none;
+
+    border-radius:14px;
+
+    cursor:pointer;
+
+    color:white;
+    font-weight:600;
+
+    background:rgba(255,255,255,.08);
+
+    border:1px solid rgba(255,255,255,.12);
+
+    transition:.3s;
+}
+
+button:hover{
+    background:rgba(255,255,255,.12);
+}
+
+@media(max-width:1150px){
+
+    body{
+        overflow:auto;
+        padding:40px 0;
+    }
+
+    .cards{
+        flex-direction:column;
+        align-items:center;
+    }
+
+    .card{
+        width:min(350px,92vw);
+    }
+
+    .title{
+        font-size:2.2rem;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="title">WELCOME TO ITENARY</div>
+
+    <div class="cards">
+
+        <!-- ADMIN -->
+        <div class="card">
+
+            <div class="card-front">
+                <div class="badge">System Access</div>
+
+                <div class="role">ADMIN</div>
+
+                <div class="desc">
+                    Full control over users, settings, permissions and system-wide configuration management.
+                </div>
+
+                <a href="#" class="login-btn" onclick="openForm(event,this)">
+                    Login as Admin
+                </a>
+            </div>
+
+            <div class="login-panel">
+
+                <h3>Admin Login</h3>
+
+                <label>Admin ID</label>
+                <input type="text" placeholder="Enter Admin ID">
+
+                <label>Password</label>
+                <input type="password" placeholder="Enter Password">
+
+                <div class="actions">
+                    <button onclick="closeForm(event,this)">Back</button>
+                    <button>Login</button>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- HOD -->
+        <div class="card">
+
+            <div class="card-front">
+                <div class="badge">Department Access</div>
+
+                <div class="role">HOD</div>
+
+                <div class="desc">
+                    Manage faculty, departmental resources, schedules and academic workflows.
+                </div>
+
+                <a href="#" class="login-btn" onclick="openForm(event,this)">
+                    Login as HOD
+                </a>
+            </div>
+
+            <div class="login-panel">
+
+                <h3>HOD Login</h3>
+
+                <label>HOD ID</label>
+                <input type="text" placeholder="Enter HOD ID">
+
+                <label>Password</label>
+                <input type="password" placeholder="Enter Password">
+
+                <div class="actions">
+                    <button onclick="closeForm(event,this)">Back</button>
+                    <button>Login</button>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- TEACHER -->
+        <div class="card">
+
+            <div class="card-front">
+                <div class="badge">Faculty Access</div>
+
+                <div class="role">TEACHER</div>
+
+                <div class="desc">
+                    Access schedules, student records, assignments and classroom tools.
+                </div>
+
+                <a href="#" class="login-btn" onclick="openForm(event,this)">
+                    Login as Teacher
+                </a>
+            </div>
+
+            <div class="login-panel">
+
+                <h3>Teacher Login</h3>
+
+                <label>Teacher ID</label>
+                <input type="text" placeholder="Enter Teacher ID">
+
+                <label>Password</label>
+                <input type="password" placeholder="Enter Password">
+
+                <div class="actions">
+                    <button onclick="closeForm(event,this)">Back</button>
+                    <button>Login</button>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+function openForm(event,element){
+    event.preventDefault();
+    element.closest('.card').classList.add('show-form');
+}
+
+function closeForm(event,element){
+    event.preventDefault();
+    element.closest('.card').classList.remove('show-form');
+}
+
+</script>
+
+</body>
+</html>
